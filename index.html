@@ -27,14 +27,17 @@
           padding-bottom: 8px; }
   table { border-collapse: collapse; margin: 0 auto; table-layout: fixed;
           width: max-content; }
-  td { width: var(--cell); min-width: var(--cell); height: var(--cell);
+  tr { height: var(--cell); }
+  td { width: var(--cell); min-width: var(--cell); max-width: var(--cell);
+       height: var(--cell); max-height: var(--cell); overflow: hidden;
        border: .6px solid #000; padding: 0; text-align: center;
        vertical-align: middle; position: relative; }
-  td.clue { background: var(--clue); font-size: 7.5px; line-height: 1.06;
-            text-transform: uppercase; padding: 1px; hyphens: auto;
-            -webkit-hyphens: auto; overflow-wrap: break-word; }
-  td.clue .v { display: block; }
-  td.clue .l { display: block; }
+  td.clue { background: var(--clue); }
+  td.clue .box { height: var(--cell); display: flex; flex-direction: column;
+                 justify-content: center; overflow: hidden; padding: 1px;
+                 line-height: 1.05; text-transform: uppercase; hyphens: auto;
+                 -webkit-hyphens: auto; overflow-wrap: break-word; }
+  td.clue .v, td.clue .l { display: block; }
   td.clue .v + .l { border-top: .6px solid #000; margin-top: 1px; padding-top: 1px; }
   td.nr { background: #fff; font-family: Georgia, serif; font-size: 17px; font-weight: 700; }
   td.let input { width: 100%; height: 100%; border: 0; outline: 0; text-align: center;
@@ -119,11 +122,29 @@ for (let r = 1; r <= D.nr; r++) {
     } else {
       td.className = 'clue';
       const b = D.boxes[k] || {};
-      if (b.v) { const s = document.createElement('span'); s.className = 'v'; s.textContent = b.v; td.appendChild(s); }
-      if (b.l) { const s = document.createElement('span'); s.className = 'l'; s.textContent = b.l; td.appendChild(s); }
+      const box = document.createElement('div');
+      box.className = 'box';
+      if (b.v) { const s = document.createElement('span'); s.className = 'v'; s.textContent = b.v; box.appendChild(s); }
+      if (b.l) { const s = document.createElement('span'); s.className = 'l'; s.textContent = b.l; box.appendChild(s); }
+      td.appendChild(box);
     }
   }
 }
+
+// Every cell is the same size, so the text has to give: shrink each clue until it
+// fits its box. Same trick as the printed page.
+function fitClues() {
+  document.querySelectorAll('td.clue .box').forEach(box => {
+    let size = 8.5;                       // start big, shrink until nothing overflows
+    box.style.fontSize = size + 'px';
+    while (box.scrollHeight > box.clientHeight + 0.5 && size > 4) {
+      size -= 0.25;
+      box.style.fontSize = size + 'px';
+    }
+  });
+}
+fitClues();
+addEventListener('resize', fitClues);
 
 const cellAt = (r, c) => document.querySelector(`td.let[data-r="${r}"][data-c="${c}"]`);
 const inputAt = (r, c) => { const t = cellAt(r, c); return t ? t.querySelector('input') : null; };
