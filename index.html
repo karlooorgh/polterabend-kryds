@@ -132,7 +132,7 @@ for (let r = 1; r <= D.nr; r++) {
 // fits its box. Same trick as the printed page.
 function fitClues() {
   document.querySelectorAll('td.clue .box').forEach(box => {
-    let size = 8.5;                       // start big, shrink until nothing overflows
+    let size = 7;                         // start size; shrink until nothing overflows
     box.style.fontSize = size + 'px';
     while (box.scrollHeight > box.clientHeight + 0.5 && size > 4) {
       size -= 0.25;
